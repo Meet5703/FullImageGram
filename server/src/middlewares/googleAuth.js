@@ -14,12 +14,11 @@ import { generateToken } from "../utils/JWT.js";
 const randomPassword = () => {
   return Math.random().toString(36).slice(-8);
 };
-// Serialize user to save in the session
+
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
 
-// Deserialize user from the session
 passport.deserializeUser(async (id, done) => {
   const user = await getUserByIdService(id);
   done(null, user);
@@ -31,7 +30,7 @@ passport.use(
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
       callbackURL: "http://localhost:3000/auth/google/callback",
-      passReqToCallback: true, // Pass req object to the callback
+      passReqToCallback: true,
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
@@ -59,14 +58,12 @@ export const verifyAndStoreCookie = async (req, res) => {
     const tokenObject = { id: user._id, email: user.email, role: user.role };
     const token = await generateToken({ payload: tokenObject });
 
-    // Use `req.res` to set the cookie directly
     req.res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    // console.log(req.cookies.token);
 
     res.redirect("/api");
   } catch (error) {

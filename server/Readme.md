@@ -290,3 +290,148 @@ export const verifyToken = (token) => {
   return payload;
 };
 ```
+
+##### Google Auth With Passportjs
+
+- step 1
+  Go to Google console and make a new project then inside project go to api tab inside api go to _OAuth Consent Screen_ Create App there were an otpion for select Scopes go to selection and select this three
+  - ./auth/userinfo.email
+  - ./auth/userinfo.profile
+  - openid
+- step 2
+  after creation of consent screen go to credentials tap on create credential go to OAuth client Id in oauth client id add redirect url of callback after authentication done from google it will redirect user to that url
+- step 3
+  install these npm packages
+
+  - **express-session** for this middleware in index file
+    with cmd
+
+  ```
+  npm i express-session
+  ```
+
+  ```javascript
+  app.use(
+    session({
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: true,
+      cookie: {
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: "lax",
+      },
+    })
+  );
+  ```
+
+  - passport and passport-google-oauth20
+    for passportjs logic we can make google auth by brutforce approch but passportjs and it's stretergies are very effective and easy to use thats why i used this
+
+  ```
+  npm i passport passport-google-oauth20
+  ```
+
+  for passportjs code here some steps
+
+  - step 1 make googleAuth in middlewares folder
+
+  ```javascript
+  import passport from "passport";
+  import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+  import {
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+  } from "../configs/variables.js";
+  import {
+    getUserByEmailService,
+    createUserService,
+    getUserByIdService,
+  } from "../services/User.js";
+  import { generateToken } from "../utils/JWT.js";
+
+  const randomPassword = () => {
+    return Math.random().toString(36).slice(-8);
+  };
+
+  passport.serializeUser((user, done) => {
+    done(null, user._id);
+  });
+
+  passport.deserializeUser(async (id, done) => {
+    const user = await getUserByIdService(id);
+    done(null, user);
+  });
+
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: GOOGLE_CLIENT_ID,
+        clientSecret: GOOGLE_CLIENT_SECRET,
+        callbackURL: "http://localhost:3000/auth/google/callback",
+        passReqToCallback: true,
+      },
+      async (req, accessToken, refreshToken, profile, done) => {
+        try {
+          const email = profile.emails[0].value;
+          const name = profile.displayName;
+          let user = await getUserByEmailService(email);
+
+          if (!user) {
+            const password = randomPassword();
+            user = await createUserService({ name, email, password });
+          }
+
+          done(null, user);
+        } catch (error) {
+          done(error, null);
+        }
+      }
+    )
+  );
+
+  export const verifyAndStoreCookie = async (req, res) => {
+    try {
+      const user = req.user;
+
+      const tokenObject = { id: user._id, email: user.email, role: user.role };
+      const token = await generateToken({ payload: tokenObject });
+
+      req.res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+
+      res.redirect("/api");
+    } catch (error) {
+      console.error("Failed to authenticate user:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  };
+  ```
+
+- Step 2
+  create a get route inside apirouter for initiate signup or login auth with google
+
+  ```javascript
+  app.get(
+    "/auth/google",
+    passport.authenticate("google", { scope: ["profile", "email"] })
+  );
+  ```
+
+- step 3
+  Final Step add callback url and logics for store userdata in mycase i create a function inside googleAuth.js named export verifyAndStoreCookie that code alredy given at above Step 1 now callbackurl code in indexjs
+
+```javascript
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  verifyAndStoreCookie
+);
+```
