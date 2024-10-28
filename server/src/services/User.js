@@ -13,7 +13,6 @@ export const signInService = async ({ email, password }, res) => {
   if (!user) {
     throw new Error("User not found");
   }
-
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     throw new Error("Invalid password");
@@ -26,7 +25,7 @@ export const signInService = async ({ email, password }, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    maxAge: 24 * 60 * 60 * 1000,
   });
 
   return { token, user };
@@ -55,6 +54,10 @@ export const updateUserByIdService = async ({ id, userObject }) => {
   return user;
 };
 
+export const getUserByEmailService = async (email) => {
+  const user = await getUserByEmailRepo(email);
+  return user;
+};
 export const deleteUserByIdService = async (id) => {
   const user = await deleteUserByIdRepo(id);
   return user;
