@@ -6,7 +6,7 @@ import apiRouter from "./routers/apiRouter.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import session from "express-session";
-import { SESSION_SECRET } from "./configs/variables.js";
+import { PORT, SESSION_SECRET } from "./configs/variables.js";
 import "./middlewares/googleAuth.js";
 import { generateToken } from "./utils/JWT.js";
 import { verifyAndStoreCookie } from "./middlewares/googleAuth.js";
@@ -44,6 +44,6 @@ app.get(
   passport.authenticate("google", { failureRedirect: "/login" }),
   verifyAndStoreCookie
 );
-app.listen(3000, () => {
-  console.log("Listening on port 3000");
+app.listen(PORT, () => {
+  console.log("Listening on port " + PORT);
 });
