@@ -48,7 +48,8 @@ app.get("/", (req, res) => {
 });
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", { failureRedirect: "http://localhost:5173" }),
+
   verifyAndStoreCookie
 );
 app.listen(PORT, () => {

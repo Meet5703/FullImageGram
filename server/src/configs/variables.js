@@ -12,3 +12,4 @@ export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 export const SESSION_SECRET = process.env.SESSION_SECRET;
 export const PORT = process.env.PORT;
 export const URL = process.env.URL;
+export const FRONTEND_URL = process.env.FRONTEND_URL;
