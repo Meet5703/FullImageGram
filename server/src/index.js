@@ -10,10 +10,17 @@ import { PORT, SESSION_SECRET } from "./configs/variables.js";
 import "./middlewares/googleAuth.js";
 import { generateToken } from "./utils/JWT.js";
 import { verifyAndStoreCookie } from "./middlewares/googleAuth.js";
+import cors from "cors";
 
 const app = express();
 connectDB();
 
+app.use(
+  cors({
+    credentials: true,
+    origin: ["http://localhost:3000", "http://localhost:5173"],
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
