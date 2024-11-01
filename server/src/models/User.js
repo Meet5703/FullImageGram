@@ -9,7 +9,11 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate: /^\S+@\S+$/,
     },
-    password: { type: String, required: true, minlength: 6 },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+    },
     role: { type: String, enum: ["admin", "user"], default: "user" },
   },
   { timestamps: true }
@@ -23,4 +27,3 @@ userSchema.pre("save", async function (next) {
 const User = mongoose.model("User", userSchema);
 
 export default User;
-

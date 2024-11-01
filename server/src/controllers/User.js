@@ -4,11 +4,24 @@ import { getAllUsersService, signInService } from "../services/User.js";
 export const createUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const validPassword = password.length >= 6;
+    if (!validPassword) {
+      return res
+        .status(401)
+        .json({ message: "Password must be at least 6 characters long" });
+    }
+    const validateEmail = email.match(/^\S+@\S+$/);
+    if (!validateEmail) {
+      return res
+        .status(401)
+        .json({ message: "Email must be a valid email address" });
+    }
     const user = await User.create({ name, email, password });
     return res
       .status(201)
       .json({ message: "User created successfully", data: user });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: error.message });
   }
 };
