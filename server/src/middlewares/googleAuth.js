@@ -1,6 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import {
+  FRONTEND_URL,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   URL,
@@ -69,7 +70,7 @@ export const verifyAndStoreCookie = async (req, res) => {
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.redirect("http://localhost:5173");
+    res.redirect(`${FRONTEND_URL}/?success=true`);
   } catch (error) {
     console.error("Failed to authenticate user:", error);
     res.status(500).send("Internal Server Error");

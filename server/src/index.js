@@ -14,13 +14,15 @@ import cors from "cors";
 
 const app = express();
 connectDB();
-
 app.use(
   cors({
-    credentials: true,
     origin: ["http://localhost:3000", "http://localhost:5173"],
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -46,6 +48,10 @@ app.use("/api", apiRouter);
 app.get("/", (req, res) => {
   res.send(`<a href="/api/auth/google">Sign in with Google</a>`);
 });
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "http://localhost:5173" }),

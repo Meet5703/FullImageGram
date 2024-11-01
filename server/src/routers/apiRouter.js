@@ -4,10 +4,10 @@ import passport from "passport";
 const app = express();
 
 app.use("/v1", v1Router);
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+// app.get(
+//   "/auth/google",
+//   passport.authenticate("google", { scope: ["profile", "email"] })
+// );
 
 app.get("/", (req, res) => {
   res.send(`<h1>API</h1><br/><p>Hello ${req.user.name}</p>`);
