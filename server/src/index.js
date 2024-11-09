@@ -16,7 +16,7 @@ const app = express();
 connectDB();
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: ["http://localhost:3000","https://image-gram.vercel.app/login", "http://localhost:5173"],
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -54,7 +54,7 @@ app.get(
 );
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "http://localhost:5173" }),
+  passport.authenticate("google", { failureRedirect: "https://image-gram.vercel.app/login" }),
 
   verifyAndStoreCookie
 );
